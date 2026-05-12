@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from typing import Optional 
 
 # Temporary in-memory database (will be replaced by PostgreSQL later)
@@ -24,6 +25,13 @@ async def get_expense(
     if max_amount is not None: 
         result = [e for e in result if e["amount"] <= max_amount]
     return result
+
+@app.get("/expenses/{expense_id}")
+async def get_expense(expense_id: int):
+    for expense in expenses_db:
+        if expense["id"] == expense_id:
+            return expense
+    raise HTTPException(status_code=404, detail="Expense not found")
 
 @app.get("/expense/search")
 async def get_expenses_search(
